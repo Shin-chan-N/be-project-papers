@@ -118,26 +118,34 @@ To operationalize these safeguards throughout enterprise engineering, Kulkarni a
 \section{Comparative Analysis}
 \label{sec:comparative}
 
-\subsection{Cross-Cutting Taxonomy and Trade-off Matrix}
-The surveyed literature demonstrates that no individual safeguard provides end-to-end protection. Table~\ref{tab:comparison} compares representative approaches across their respective enforcement layers, primary threats mitigated, theoretical guarantees, and practical limitations.
+\subsection{Comparison with Existing Literature and Related Surveys}
+A key limitation of existing research on LLM safety is fragmentation: existing surveys and research papers typically isolate a single layer—such as conversational output safety, vector retrieval filtering, or prompt-injection benchmarks—without addressing the interconnected failure modes of multi-stage autonomous agents. 
+
+Table~\ref{tab:survey_comparison} compares this survey with representative existing surveys and related works across critical architectural dimensions: scope, taxonomy granularity, challenge coverage, tool execution governance, standards alignment, and empirical codebase validation. As highlighted in the comparative matrix, existing broad surveys (e.g., Dong et al.~\cite{dong2025safeguardingsurvey}) focus primarily on conversational text safety and lack operational tool governance or multi-tenant IAM retrieval. Conversely, specialized studies (such as Jeong and Lee~\cite{jeonglee2025permissionawarerag} for IAM-RAG or Debenedetti et al.~\cite{debenedetti2026camel} for CaMeL) offer deep mechanisms for individual boundaries but do not cover the complete data-to-action pipeline. This survey bridges these isolated silos by delivering a unified, four-layer systems taxonomy (RQ1--RQ4) grounded in both foundational security standards and real-world codebase validation.
 
 \begin{table*}[t]
 \centering
-\caption{Comparative analysis of representative enterprise AI safeguarding approaches.}
-\label{tab:comparison}
+\caption{Comparison of our survey with existing surveys and representative related works on AI safeguarding and agent governance.}
+\label{tab:survey_comparison}
 \small
-\setlength{\tabcolsep}{5pt}
-\begin{tabular}{p{2.6cm}p{2.4cm}p{3.2cm}p{3.8cm}p{3.8cm}}
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{p{2.3cm}p{2.3cm}p{2.2cm}p{2.8cm}p{2.2cm}p{2.0cm}p{2.4cm}}
 \toprule
-\textbf{Approach} & \textbf{Enforcement Layer} & \textbf{Primary Threat} & \textbf{Empirical Evidence Base} & \textbf{Known Limitations \& Overhead} \\
+\textbf{Work / Survey} & \textbf{Scope} & \textbf{Taxonomy Granularity} & \textbf{Challenge Coverage} & \textbf{Tool / Action Governance} & \textbf{Standards Alignment} & \textbf{Empirical Codebase Analysis} \\
 \midrule
-Permission-Aware RAG \cite{jeonglee2025permissionawarerag} & Data / Retrieval & Unauthorized data exposure (OWASP LLM06) & Multi-hop HotpotQA with AWS/GCP/Keycloak simulated profiles & Latency overhead (up to 204\,ms IAM check at $k=20$); lacks real-time SaaS sync \\
-Model Guardrails (Safe-BigQA \cite{moraes2026safebigqa}, NeMo \cite{mcwherter2024safeguardingai}) & Model / Input-Output & Jailbreaks, offensive content, PII leakage & Benchmark classification (F1 62.87\% on BigQA; NeMo probe sets) & Probabilistic evasion; false rejection of benign business queries; serving latency \\
-CaMeL Data-Flow Control \cite{debenedetti2026camel} & Architectural / System & Indirect Prompt Injection (OWASP LLM01) & 77\% secure completion rate on AgentDojo benchmark & Utility penalty (-7\% task success); higher token consumption; requires policy authoring \\
-Formal Tool Constraints (STPA/Alloy) \cite{doshi2026verifiablysafetooluse} & Tool Execution & Excessive agency, out-of-order calls (OWASP LLM08) & Formal model verification of invariant properties in Alloy & Theoretical specification; lacks high-throughput runtime benchmarks \\
-Verified Tool Calls \cite{mansoor2026verifiedtoolcalls} & Tool Execution & Duplicate side effects, non-atomic failures & Simulated network fault injection across two multi-stage workflows & Handcrafted postcondition verifiers; assumes verifiable external API state \\
-RAGAs Grounding Metrics \cite{es2024ragas} & Observability / Eval & Parametric hallucination, unfaithful context & Benchmark reference-free correlation with human judgments & Informational metric only; does not enforce authorization or block attacks \\
-GRAILS SDLC Framework \cite{kulkarni2025grails} & Lifecycle / SDLC & Ethical non-compliance, governance drift & Architectural design patterns applied to societal data systems & Qualitative engineering guidelines; relies on developer implementation rigor \\
+Dong et al.~\cite{dong2025safeguardingsurvey} & Broad LLM safeguards & High (Input, output, model guardrails) & Safety, toxicity, bias, jailbreaks & No (conversational text generation) & General AI safety principles & No (literature review only) \\
+\addlinespace
+Dev et al.~\cite{dev2025threat} & AI threat modeling meta-analysis & High (Threat question library) & Adversarial attacks, privacy, data poisoning & Limited (threat discovery only) & High (MITRE ATLAS, OWASP, NIST) & Partial (expert review panel) \\
+\addlinespace
+Kulkarni \& Ramanathan~\cite{kulkarni2025grails} & Ethical safeguards in software SDLC & Medium (Architectural design patterns) & Privacy, fairness, regulatory compliance & Limited (software application services) & High (Responsible AI guidelines) & Qualitative industrial examples \\
+\addlinespace
+Jeong \& Lee~\cite{jeonglee2025permissionawarerag} & Permission-aware cloud RAG & Focused (IAM-RAG pipeline) & Cross-tenant data leakage, access control & No (retrieval-only focus) & High (AWS, GCP, Keycloak IAM) & Yes (HotpotQA prototype evaluation) \\
+\addlinespace
+Debenedetti et al.~\cite{debenedetti2026camel} & Indirect prompt injection defense & Focused (Data-flow and capability graphs) & Prompt injection, data exfiltration & Yes (capability checks before tool calls) & Threat-model specific (AgentDojo) & Yes (AgentDojo benchmark) \\
+\addlinespace
+Mansoor et al.~\cite{mansoor2026verifiedtoolcalls} / Doshi et al.~\cite{doshi2026verifiablysafetooluse} & Tool safety and action reliability & Focused (State invariants \& postconditions) & Excessive agency, duplicate executions & High (tool sequences, idempotency keys) & STPA hazard analysis & Yes (simulated workflows / Alloy models) \\
+\midrule
+\textbf{This survey} & \textbf{End-to-end enterprise agent safeguarding} & \textbf{High (4-layer data-to-action taxonomy: RQ1--RQ4)} & \textbf{Access control, prompt injection, tool duplication, cost runaway} & \textbf{Yes (State machines, human checkpoints, at-most-once ledgers)} & \textbf{High (OWASP Top 10, NIST AI RMF, MITRE ATLAS)} & \textbf{Yes (Comprehensive static audit of Enable Agents platform)} \\
 \bottomrule
 \end{tabular}
 \end{table*}
