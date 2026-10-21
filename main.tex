@@ -1,8 +1,18 @@
 % Enterprise AI Safeguarding Survey Draft
 \documentclass[sigconf]{acmart}
 
+\usepackage{graphicx}
 \usepackage{microtype}
 \usepackage{placeins}
+\usepackage{dblfloatfix}
+
+% Relax float constraints to prevent float queues from jamming and causing layout overlaps
+\renewcommand{\topfraction}{0.95}
+\renewcommand{\bottomfraction}{0.85}
+\renewcommand{\textfraction}{0.05}
+\renewcommand{\floatpagefraction}{0.75}
+\renewcommand{\dbltopfraction}{0.95}
+\renewcommand{\dblfloatpagefraction}{0.75}
 
 % Draft metadata: copyright, DOI, and conference parameters configured for preprint/review.
 \settopmatter{printacmref=false}
@@ -53,6 +63,8 @@
   \country{India}
 }
 
+\renewcommand{\shortauthors}{Vidyasagar et al.}
+
 \begin{abstract}
 Autonomous enterprise agents do more than generate text: they query corporate data stores and invoke external APIs with real-world side effects. When an agent acts autonomously, failures become operational risks. An unconstrained workflow can leak cross-tenant records, execute adversarial directives hidden in retrieved documents, or repeat destructive, non-atomic database writes. This survey reviews security research (2020--2026) and production practices for safeguarding enterprise language model agents across the full data-to-action lifecycle. We organize current defenses into four practical layers: (1) identity-aware data governance and grounding, (2) prompt injection defense and information flow control, (3) runtime tool mediation and execution idempotency, and (4) lifecycle observability and budget governance. We evaluate where probabilistic defenses—such as guardrail classifiers and alignment prompts—break down against adaptive attacks, and why deterministic software mechanisms are required at each boundary. Drawing on lessons from an enterprise multi-agent workflow platform, we argue that agent safeguarding is fundamentally a systems problem rather than a prompting challenge: safety requires complete mediation and explicit state verification in code. We conclude by identifying open challenges in dynamic permission synchronization, benchmark realism, and end-to-end auditability.
 \end{abstract}
@@ -102,6 +114,13 @@ Securing these workflows exposes vulnerabilities across the entire pipeline:
 
 Relying on system prompts or post-hoc text classifiers to prevent these failures is insufficient. Prompt instructions are easily bypassed by determined adversaries, and classifiers cannot guarantee deterministic execution invariants. Enterprise threat taxonomies—such as the OWASP Top 10 for LLMs \cite{owasp2025llm} and NIST-aligned risk catalogs \cite{dev2025threat}—show that safety requires architectural controls embedded across the development lifecycle, not just advisory guidelines \cite{kulkarni2025grails,dong2024systematicguardrails}.
 
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.92\columnwidth]{diagrams/a.jpeg}
+\caption{Vulnerability vectors and operational hazards across enterprise autonomous AI agent execution loops.}
+\label{fig:threat_landscape}
+\end{figure}
+
 To evaluate current research and industrial practices (2020--2026), we frame this survey around four practical questions spanning the agent execution lifecycle:
 \begin{itemize}
   \item \textbf{RQ1 (Data Governance \& Permissions):} \emph{How can agents retrieve grounded corporate knowledge while strictly enforcing tenant isolation and source-level access policies?}
@@ -137,6 +156,13 @@ Following Saltzer and Schroeder's complete mediation principle \cite{saltzer1975
   \item \textbf{Layer 4 (RQ4): Observability \& Lifecycle Auditing (How is the system governed?)} Tracking token consumption, enforcing cost ceilings, and maintaining tamper-evident execution logs across development and production.
 \end{itemize}
 
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.95\columnwidth]{diagrams/b.jpeg}
+\caption{The four-layer enterprise safeguard taxonomy, mapping lifecycle stages from grounded data retrieval to audited tool execution.}
+\label{fig:taxonomy}
+\end{figure}
+
 \subsection{Review Methodology}
 Our review covers literature published between 2020 and 2026 across computing and security venues including ACM, IEEE, USENIX \cite{zou2024poisonedrag}, ACL, and ICLR \cite{yao2023react,ruan2024toolemu}. We selected studies addressing permission management in RAG, indirect prompt injection defenses, tool safety protocols, and AI governance frameworks. We evaluated each work on its underlying threat model, whether it offers formal or probabilistic guarantees, and its practical overhead in production systems.
 
@@ -155,6 +181,13 @@ Even with authorized context, models still hallucinate. Es et al.~\cite{es2024ra
 
 \subsection{RQ2: Threat Protection and Prompt Injection Defense}
 Connecting agents to live data creates a direct attack surface: Indirect Prompt Injection (IPI). First detailed by Greshake et al.~\cite{greshake2023indirect}, IPI occurs when third-party content—such as an email, ticket, or supplier PDF—contains hidden instructions. When parsed by the model, these payloads can override system prompts, exfiltrate confidential context, or initiate unintended tool transactions.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.95\columnwidth]{diagrams/c.jpeg}
+\caption{Mechanisms of Indirect Prompt Injection (IPI) via untrusted external context and corresponding defense perimeters.}
+\label{fig:injection_defense}
+\end{figure}
 
 Current defenses fall into two main categories:
 \begin{enumerate}
@@ -177,23 +210,6 @@ At the process level, Kulkarni and Ramanathan propose GRAILS \cite{kulkarni2025g
 % ==================================================================
 % 4. COMPARATIVE ANALYSIS
 % ==================================================================
-\section{Comparative Analysis}
-\label{sec:comparative}
-
-\subsection{Comparison with Existing Literature and Related Surveys}
-A recurring problem in AI safety research is domain isolation. Existing surveys and primary papers generally examine one layer in depth—evaluating output guardrails, RAG similarity benchmarks, or prompt injection suites—without addressing how vulnerabilities cascade across a multi-stage agent workflow.
-
-To map these boundaries, Table~\ref{tab:survey_comparison} compares representative surveys and primary studies across five core dimensions:
-\begin{enumerate}
-  \item \textbf{Primary Focus:} The principal problem domain addressed by the work (conversational safety, retrieval algorithms, agent planning, or tool verification).
-  \item \textbf{Data Access \& IAM (RQ1):} Whether the system enforces multi-tenant identity and access policies during context retrieval.
-  \item \textbf{Prompt Injection Defense (RQ2):} Whether the approach provides structural or classifier-based defenses against indirect prompt injections in retrieved data.
-  \item \textbf{Tool \& Action Safety (RQ3):} Whether the architecture applies sequence checks, idempotency tracking, or human approval gates before executing API mutations.
-  \item \textbf{Standards Alignment (RQ4):} Whether the work connects to established security frameworks such as OWASP Top 10 for LLMs \cite{owasp2025llm}, NIST AI RMF, or MITRE ATLAS \cite{dev2025threat}.
-\end{enumerate}
-
-As Table~\ref{tab:survey_comparison} illustrates, broad surveys like Dong et al.~\cite{dong2025safeguardingsurvey} and Gao et al.~\cite{gao2023ragsurvey} center on conversational safety and vector similarity, paying little attention to IAM or tool-level side effects. Agent surveys (e.g., Wang et al.~\cite{wang2024agents}) examine decomposition and planning, but leave out security boundaries and injection defenses. Conversely, pioneering primary papers—such as Jeong and Lee \cite{jeonglee2025permissionawarerag} on IAM-RAG, Debenedetti et al.~\cite{debenedetti2026camel} on CaMeL, and Mansoor et al.~\cite{mansoor2026verifiedtoolcalls} on tool idempotency—offer deep solutions for specific layers, but do not integrate them into an end-to-end architecture. This survey links these disparate efforts into a unified, four-layer taxonomy (RQ1--RQ4) grounded in classic software engineering and production practices.
-
 \begin{table*}[t]
 \centering
 \caption{Comparative analysis of existing surveys, meta-reviews, and representative primary works across our four safeguard layers.}
@@ -229,6 +245,23 @@ Kulkarni \& Ramanathan~\cite{kulkarni2025grails} [Framework / Paper] & Embedding
 \end{tabular}
 \end{table*}
 
+\section{Comparative Analysis}
+\label{sec:comparative}
+
+\subsection{Comparison with Existing Literature and Related Surveys}
+A recurring problem in AI safety research is domain isolation. Existing surveys and primary papers generally examine one layer in depth—evaluating output guardrails, RAG similarity benchmarks, or prompt injection suites—without addressing how vulnerabilities cascade across a multi-stage agent workflow.
+
+To map these boundaries, Table~\ref{tab:survey_comparison} compares representative surveys and primary studies across five core dimensions:
+\begin{enumerate}
+  \item \textbf{Primary Focus:} The principal problem domain addressed by the work (conversational safety, retrieval algorithms, agent planning, or tool verification).
+  \item \textbf{Data Access \& IAM (RQ1):} Whether the system enforces multi-tenant identity and access policies during context retrieval.
+  \item \textbf{Prompt Injection Defense (RQ2):} Whether the approach provides structural or classifier-based defenses against indirect prompt injections in retrieved data.
+  \item \textbf{Tool \& Action Safety (RQ3):} Whether the architecture applies sequence checks, idempotency tracking, or human approval gates before executing API mutations.
+  \item \textbf{Standards Alignment (RQ4):} Whether the work connects to established security frameworks such as OWASP Top 10 for LLMs \cite{owasp2025llm}, NIST AI RMF, or MITRE ATLAS \cite{dev2025threat}.
+\end{enumerate}
+
+As Table~\ref{tab:survey_comparison} illustrates, broad surveys like Dong et al.~\cite{dong2025safeguardingsurvey} and Gao et al.~\cite{gao2023ragsurvey} center on conversational safety and vector similarity, paying little attention to IAM or tool-level side effects. Agent surveys (e.g., Wang et al.~\cite{wang2024agents}) examine decomposition and planning, but leave out security boundaries and injection defenses. Conversely, pioneering primary papers—such as Jeong and Lee \cite{jeonglee2025permissionawarerag} on IAM-RAG, Debenedetti et al.~\cite{debenedetti2026camel} on CaMeL, and Mansoor et al.~\cite{mansoor2026verifiedtoolcalls} on tool idempotency—offer deep solutions for specific layers, but do not integrate them into an end-to-end architecture. This survey links these disparate efforts into a unified, four-layer taxonomy (RQ1--RQ4) grounded in classic software engineering and production practices.
+
 \subsection{Practical Implementation: Safeguard Realization in Our Platform}
 \label{sec:implementation}
 To ground these principles in concrete software, we examine our ongoing prototype implementation of an enterprise multi-agent workflow platform. The system coordinates complex business pipelines—including supplier qualification, cross-document analysis, and stakeholder outreach—built on LangGraph state graphs, PostgreSQL with vector similarity indexing (\texttt{pgvector}), background worker queues, and an API gateway.
@@ -243,7 +276,7 @@ Table~\ref{tab:implementation} maps our platform's implemented mechanisms across
 \label{tab:implementation}
 \footnotesize
 \setlength{\tabcolsep}{2.5pt}
-\begin{tabular}{p{2.0cm}p{4.2cm}p{1.7cm}}
+\begin{tabular}{p{1.9cm}p{4.1cm}p{1.6cm}}
 \toprule
 \textbf{Safeguard Layer / RQ} & \textbf{Mechanism in Our Platform} & \textbf{Literature Mapping} \\
 \midrule
@@ -268,15 +301,18 @@ Grounding (RQ1/RQ4) & Automated schema validation and LLM-assisted grounding tel
 \begin{enumerate}
   \item \emph{Fail-Closed Retrieval vs. Dynamic IAM (RQ1):} In theory, permission-aware retrieval can run either as a pre-filter or a post-filter against native IAM:
   \[
-  C_{\text{pre}}(q,u) = \operatorname{Top}_k(q; \{d \in D \mid \operatorname{IAM}_{s(d)}(u, d, \text{read}) = \text{allow}\}),
-  \]
-  \[
+  \begin{gathered}
+  C_{\text{pre}}(q,u) = \operatorname{Top}_k(q; \{d \in D \mid \operatorname{IAM}_{s(d)}(u, d, \text{read}) = \text{allow}\}), \\
   C_{\text{post}}(q,u) = \{d \in \operatorname{Top}_k(q; D) \mid \operatorname{IAM}_{s(d)}(u, d, \text{read}) = \text{allow}\}.
+  \end{gathered}
   \]
   While post-filtering avoids re-indexing, it suffers from severe recall loss when permissions are strict ($|C_{\text{post}}| \ll k$). Our prototype currently enforces fail-closed isolation directly in the query layer, scoping vector searches to the user's verified session identity $u = \operatorname{auth}(\text{session})$:
   \[
   D_u = \begin{cases}
-  \{d \in D \mid \operatorname{tenant}(d) = \operatorname{tenant}(u) \wedge \operatorname{owner}(d) = u\}, & u \neq \bot, \\
+  \begin{aligned}
+  \{d \in D \mid {} & \operatorname{tenant}(d) = \operatorname{tenant}(u) \\
+  & \wedge \operatorname{owner}(d) = u\},
+  \end{aligned} & u \neq \bot, \\
   \emptyset, & u = \bot.
   \end{cases}
   \]
