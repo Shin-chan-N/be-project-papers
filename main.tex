@@ -25,6 +25,30 @@
 Enterprise AI is rapidly transitioning from passive conversational assistants to autonomous agentic systems. These agents connect large language models to sensitive corporate data stores and real-world execution APIs, introducing critical vulnerabilities that extend far beyond inaccurate text generation. An unconstrained agent can expose confidential documents across tenant boundaries, execute malicious directives embedded in retrieved content, or trigger destructive, non-atomic tool mutations. This survey provides a structured review of academic research (2020--2026) and industrial practices for safeguarding enterprise AI agents. We synthesize existing literature into a four-layer taxonomy spanning the complete data-to-action execution lifecycle: (1) permission-aware data governance and grounding, (2) threat mitigation and prompt-injection defense, (3) governed tool execution and action reliability, and (4) operational observability and lifecycle auditing. We evaluate model-based guardrails, native access-control integration, capability-based information flow control, formal sequence verification, and postcondition-aware idempotency ledgers. Grounded by a practical prototype implementation of an enterprise multi-agent workflow platform, our analysis reveals that reliable safety cannot be achieved through prompt engineering or model alignment alone. Rather, enterprise safeguarding is fundamentally a systems-engineering challenge requiring deterministic, software-enforced boundaries across each stage of agent execution. Finally, we highlight critical research gaps in synchronization, production evaluation fidelity, and unified forensic auditability.
 \end{abstract}
 
+\begin{CCSXML}
+<ccs2012>
+   <concept>
+       <concept_id>10002978.10003022</concept_id>
+       <concept_desc>Security and privacy~Software and application security</concept_desc>
+       <concept_significance>500</concept_significance>
+   </concept>
+   <concept>
+       <concept_id>10010147.10010178</concept_id>
+       <concept_desc>Computing methodologies~Artificial intelligence</concept_desc>
+       <concept_significance>500</concept_significance>
+   </concept>
+   <concept>
+       <concept_id>10011007.10011074</concept_id>
+       <concept_desc>Software and its engineering~Software architectures</concept_desc>
+       <concept_significance>300</concept_significance>
+   </concept>
+</ccs2012>
+\end{CCSXML}
+
+\ccsdesc[500]{Security and privacy~Software and application security}
+\ccsdesc[500]{Computing methodologies~Artificial intelligence}
+\ccsdesc[300]{Software and its engineering~Software architectures}
+
 \keywords{enterprise AI, autonomous agents, retrieval-augmented generation, access control, prompt injection, AI guardrails, tool safety, idempotency}
 
 \maketitle
