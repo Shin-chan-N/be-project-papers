@@ -1,0 +1,130 @@
+% Clean ACM-style research paper template
+% Draft the paper directly in this file. Replace placeholders as needed.
+% Keep ACM formatting if your target venue requires it.
+
+\documentclass[sigconf]{acmart}
+
+% -------------------- Optional layout / metadata settings --------------------
+% Add packages only when you need them. acmart already loads common packages
+% such as booktabs. Avoid changing margins, fonts, or spacing for ACM submissions.
+
+% Optional short title/authors if the full text is long.
+% \renewcommand{\shorttitle}{Short Paper Title}
+% \renewcommand{\shortauthors}{Author One et al.}
+
+% Do not add sample copyright, DOI, ISBN, or conference values.
+% For a final ACM submission, insert the exact metadata supplied by the venue.
+% Example fields (leave commented during ordinary drafting):
+% \setcopyright{acmlicensed}
+% \copyrightyear{2026}
+% \acmYear{2026}
+% \acmDOI{DOI supplied by the publisher}
+% \acmConference[Conference Acronym]{Full Conference Name}{Conference Dates}{Location}
+% \acmISBN{ISBN supplied by the publisher}
+
+\begin{document}
+
+% -------------------- Title and authors --------------------
+\title{Your Paper Title Here}
+
+% Add one author block per author.
+\author{Author One}
+\affiliation{%
+  \institution{Department / Institution}
+  \city{City}
+  \country{Country}
+}
+\email{author@example.com}
+
+% Example for another author (copy and edit as needed):
+% \author{Author Two}
+% \affiliation{%
+%   \institution{Department / Institution}
+%   \city{City}
+%   \country{Country}
+% }
+% \email{author2@example.com}
+
+% -------------------- Abstract and keywords --------------------
+\begin{abstract}
+% In about 150--250 words, briefly describe:
+% (1) the problem and its importance,
+% (2) the scope or approach of the paper,
+% (3) the main findings or contributions, and
+% (4) the implications or conclusion.
+Write your abstract here.
+\end{abstract}
+
+\keywords{keyword one, keyword two, keyword three}
+
+% Optional ACM Computing Classification System concepts.
+% Add these only if required by your target ACM venue:
+% \begin{CCSXML}
+% <ccs2012>
+%   <concept>
+%     <concept_id>REPLACE_WITH_VALID_CONCEPT_ID</concept_id>
+%     <concept_desc>Replace with the correct concept description</concept_desc>
+%     <concept_significance>500</concept_significance>
+%   </concept>
+% </ccs2012>
+% \end{CCSXML}
+% \ccsdesc[500]{Replace with the correct concept description}
+
+\maketitle
+
+% ==================================================================
+% Suggested structure for a survey/review paper. Rename, reorder, or
+% remove sections to fit the actual paper and the target venue.
+% ==================================================================
+
+\section{Introduction}
+% Context, motivation, problem statement, scope, objectives, and contributions.
+% End with a brief outline of the rest of the paper.
+
+\section{Background and Preliminaries}
+% Introduce terminology, core concepts, and technical background needed by readers.
+
+\section{Review Methodology}
+% Explain where and how literature was searched, search terms, date range,
+% inclusion/exclusion criteria, and how papers were selected or categorized.
+% For a non-survey paper, replace this with an appropriate methods section.
+
+\section{Taxonomy and Thematic Review}
+% Organize the literature by themes, approaches, architectures, or categories.
+% Add subsections as needed, for example:
+% \subsection{Theme or Category One}
+% \subsection{Theme or Category Two}
+% \subsection{Theme or Category Three}
+
+\section{Comparative Analysis}
+% Compare representative approaches using consistent criteria.
+% Discuss advantages, limitations, assumptions, datasets, and evaluation metrics.
+
+\section{Challenges and Open Research Questions}
+% Summarize unresolved problems, gaps in current work, and promising directions.
+
+\section{Discussion}
+% Synthesize the findings, practical implications, and lessons across themes.
+% Avoid repeating the previous sections paper by paper.
+
+\section{Limitations}
+% State limitations of the review or proposed work, where applicable.
+
+\section{Conclusion}
+% Summarize the main takeaways and their significance. Avoid introducing new claims.
+
+% Optional: include acknowledgments only when applicable and permitted by the venue.
+% \begin{acks}
+% We thank ...
+% \end{acks}
+
+% Optional appendix. Place appendices before the bibliography if required by the venue.
+% \appendix
+% \section{Additional Material}
+% Add supplementary details here.
+
+% Add references in references.bib and cite them with \cite{citation_key}.
+\bibliographystyle{ACM-Reference-Format}
+\bibliography{references}
+
+\end{document}
