@@ -1,6 +1,9 @@
 % Enterprise AI Safeguarding Survey Draft
 \documentclass[sigconf]{acmart}
 
+\usepackage{microtype}
+\usepackage{placeins}
+
 % Draft metadata: copyright, DOI, and conference parameters configured for preprint/review.
 \settopmatter{printacmref=false}
 \renewcommand\footnotetextcopyrightpermission[1]{}
@@ -62,7 +65,10 @@ The remainder of this paper is structured as follows: Section~\ref{sec:taxonomy}
 \subsection{Preliminaries: Enterprise Agent Workflows}
 An enterprise agent system operates over an iterative data-to-action execution loop:
 \[
-\text{Data Ingestion} \longrightarrow \text{Retrieval \& Grounding} \longrightarrow \text{Model Reasoning} \longrightarrow \text{Tool Execution} \longrightarrow \text{State Mutation}
+\begin{gathered}
+\text{Data Ingestion} \longrightarrow \text{Retrieval \& Grounding} \\
+\longrightarrow \text{Model Reasoning} \longrightarrow \text{Tool Execution} \longrightarrow \text{State Mutation}
+\end{gathered}
 \]
 Knowledge retrieval is commonly implemented via Retrieval-Augmented Generation (RAG) \cite{gao2023ragsurvey}, which projects corporate documents into dense vector spaces and retrieves candidate chunks using similarity measures (e.g., cosine distance). Agentic reasoning follows frameworks such as ReAct (Reasoning and Acting) \cite{yao2023react}, where the language model interleaves chain-of-thought planning with structured tool calls. Because tools interact directly with production databases and external communication services, the execution environment must enforce strict operational constraints.
 
@@ -137,8 +143,8 @@ As shown in Table~\ref{tab:survey_comparison}, existing broad surveys on LLM saf
 \caption{Comparison of our survey with existing surveys, meta-reviews, and representative related works on AI safeguarding and agent governance.}
 \label{tab:survey_comparison}
 \small
-\setlength{\tabcolsep}{4pt}
-\begin{tabular}{p{3.2cm}p{3.3cm}p{2.6cm}p{2.7cm}p{2.9cm}p{2.6cm}}
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{p{2.7cm}p{3.2cm}p{2.4cm}p{2.5cm}p{2.6cm}p{2.4cm}}
 \toprule
 \textbf{Work \& Reference} & \textbf{Primary Focus} & \textbf{Data Access \& IAM (RQ1)} & \textbf{Prompt Injection Defense (RQ2)} & \textbf{Tool \& Action Safety (RQ3)} & \textbf{Standards Alignment (RQ4)} \\
 \midrule
@@ -173,21 +179,21 @@ To ground the surveyed safeguarding principles in practical engineering, we exam
 
 Table~\ref{tab:implementation} maps our platform's implemented mechanisms across each of the four surveyed safeguard layers and their corresponding research questions.
 
-\begin{table}[t]
+\begin{table}[!htbp]
 \centering
 \caption{Mapping of our platform's implemented safeguards to surveyed research questions and literature.}
 \label{tab:implementation}
-\small
-\setlength{\tabcolsep}{3pt}
-\begin{tabular}{p{2.2cm}p{3.2cm}p{2.1cm}}
+\footnotesize
+\setlength{\tabcolsep}{2.5pt}
+\begin{tabular}{p{2.0cm}p{4.2cm}p{1.7cm}}
 \toprule
 \textbf{Safeguard Layer / RQ} & \textbf{Mechanism in Our Platform} & \textbf{Literature Mapping} \\
 \midrule
-Retrieval (RQ1) & Multi-tenant vector filtering scoped by user and organization identifiers & \cite{jeonglee2025permissionawarerag} \\
-Injection (RQ2) & Prompt templating, input schema validation, and structural context delimiters & \cite{greshake2023indirect,debenedetti2026camel} \\
-Tool Governance (RQ3) & Human-in-the-loop state machine approval interrupts on irreversible actions & \cite{doshi2026verifiablysafetooluse,owasp2025llm} \\
-Tool Reliability (RQ3) & Durable claim-before-send action ledger with cryptographic payload hashing & \cite{mansoor2026verifiedtoolcalls} \\
-Cost \& Logging (RQ4) & Central gateway, pre-flight budget reservations, and token usage telemetry & \cite{dev2025threat,kulkarni2025grails} \\
+Retrieval (RQ1) & Multi-tenant vector filtering scoped by tenant and user identifiers & \cite{jeonglee2025permissionawarerag} \\
+Injection (RQ2) & Schema validation and structural context delimiters for retrieved chunks & \cite{greshake2023indirect,debenedetti2026camel} \\
+Tool Safety (RQ3) & Human-in-the-loop state machine approval checkpoints on irreversible actions & \cite{doshi2026verifiablysafetooluse,owasp2025llm} \\
+Reliability (RQ3) & Durable claim-before-send action ledgers with SHA-1 hashing; 50-recipient cap & \cite{mansoor2026verifiedtoolcalls} \\
+Cost/Logs (RQ4) & Central model gateway, pre-flight budget reservations, and token logs & \cite{dev2025threat,kulkarni2025grails} \\
 Evaluation (RQ4) & Automated output schema validation checks and grounding metrics & \cite{es2024ragas} \\
 \bottomrule
 \end{tabular}
@@ -204,7 +210,7 @@ Evaluation (RQ4) & Automated output schema validation checks and grounding metri
 \begin{enumerate}
   \item \emph{Tenant Scoping vs. Dynamic IAM (RQ1):} In an ideal permission-aware architecture, authorized context $C(q,u)$ for query $q$ and user $u$ is filtered against each document source's native IAM policy:
   \[
-  C(q,u) = \{d \in \operatorname{Top}_k(q) : \operatorname{IAM}_{s(d)}(u, d, \text{read}) = \text{allow}\}.
+  C(q,u) = \{d \in \operatorname{Top}_k(q) \mid \operatorname{IAM}_{s(d)}(u, d, \text{read}) = \text{allow}\}.
   \]
   In our current prototype, vector search enforces multi-tenancy by scoping queries to caller-supplied user and tenant identifiers. Letting $D$ be the indexed corpus and $u=\bot$ denote an omitted identifier, the effective context behaves as $C'(q,u) = \operatorname{Top}_k(q; D_u)$, where:
   \[
@@ -220,7 +226,7 @@ Evaluation (RQ4) & Automated output schema validation checks and grounding metri
 
 To evaluate these layers rigorously against policy ground truth, retrieval access control must be measured via False Authorization Rate ($\mathrm{FAR}$) and False Rejection Rate ($\mathrm{FRR}$):
 \[
-\mathrm{FAR} = \frac{\mathrm{FP}}{\mathrm{FP} + \mathrm{TN}}, \qquad \mathrm{FRR} = \frac{\mathrm{FN}}{\mathrm{FN} + \mathrm{TP}},
+\mathrm{FAR} = \frac{\mathrm{FP}}{\mathrm{FP} + \mathrm{TN}}, \quad \mathrm{FRR} = \frac{\mathrm{FN}}{\mathrm{FN} + \mathrm{TP}},
 \]
 where $\mathrm{FP}$ counts unauthorized chunks exposed, $\mathrm{TN}$ unauthorized chunks denied, $\mathrm{FN}$ authorized chunks withheld, and $\mathrm{TP}$ authorized chunks correctly retrieved. Tool safety is measured by postcondition verification rate and duplicate-effect rate $\mathcal{R}_{\mathrm{dup}} = N_{\mathrm{dup}} / N_{\mathrm{exec}}$, while threat defenses require reporting Attack Success Rate ($\mathrm{ASR}$) alongside Benign Refusal Rate ($\mathrm{BRR}$).
 
@@ -237,6 +243,7 @@ Our synthesis of literature and practical platform implementation reveals four c
   \item \textbf{Unified End-to-End Forensic Traceability:} While individual systems record token expenditure ledgers or action claims, enterprise compliance requires an immutable, privacy-preserving audit trail linking original source provenance, IAM evaluation results, model reasoning tokens, human approval signatures, and external API postconditions into a unified forensic chain.
 \end{enumerate}
 
+\FloatBarrier
 % ==================================================================
 % 6. CONCLUSION
 % ==================================================================
@@ -246,6 +253,7 @@ Autonomous enterprise AI agents represent a paradigm shift in workflow automatio
 
 Our core finding is that enterprise safeguarding cannot be achieved through model-level alignment or prompt engineering alone. Rather, enterprise safeguarding is fundamentally a systems-engineering discipline grounded in the \emph{Determinism Principle}: deterministic software code must enforce access control before data enters model context, treat retrieved data as untrusted regardless of origin, checkpoint irreversible real-world actions via state machines, and independently verify tool postconditions. Future research must bridge the divide between theoretical security proofs and high-throughput, dynamic enterprise environments.
 
+\FloatBarrier
 % ==================================================================
 % REFERENCES
 % ==================================================================
