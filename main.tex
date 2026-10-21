@@ -12,14 +12,46 @@
 
 \title{Safeguarding Autonomous Enterprise AI Agents: A Survey of Access Control, Threat Mitigation, and Governed Execution (2020--2026)}
 
-\author{[Author Name(s) -- replace before submission]}
+\author{Vallabh Vidyasagar}
+\email{vallabhvidyasagar10@gmail.com}
 \affiliation{%
-  \institution{[Department / Institution -- replace]}
-  \city{[City -- replace]}
-  \country{[Country -- replace]}
+  \institution{Pune Institute of Computer Technology}
+  \city{Pune}
+  \country{India}
 }
-\email{[Corresponding author email -- replace]}
-% Duplicate the author/affiliation/email block above for each additional author.
+
+\author{Simran Saraf}
+\email{simran.saraf16@gmail.com}
+\affiliation{%
+  \institution{Pune Institute of Computer Technology}
+  \city{Pune}
+  \country{India}
+}
+
+\author{Vaibhavi Varsale}
+\email{vsvarsale05@gmail.com}
+\affiliation{%
+  \institution{Pune Institute of Computer Technology}
+  \city{Pune}
+  \country{India}
+}
+
+\author{Neeraj Kharde}
+\email{neerajkharde7@gmail.com}
+\affiliation{%
+  \institution{Pune Institute of Computer Technology}
+  \city{Pune}
+  \country{India}
+}
+
+\author{P. R. Navghare}
+\authornote{Project Guide and Faculty Supervisor.}
+\email{prnavghare@pict.edu}
+\affiliation{%
+  \institution{Department of Computer Engineering, Pune Institute of Computer Technology}
+  \city{Pune}
+  \country{India}
+}
 
 \begin{abstract}
 Enterprise AI is rapidly transitioning from passive conversational assistants to autonomous agentic systems. These agents connect large language models to sensitive corporate data stores and real-world execution APIs, introducing critical vulnerabilities that extend far beyond inaccurate text generation. An unconstrained agent can expose confidential documents across tenant boundaries, execute malicious directives embedded in retrieved content, or trigger destructive, non-atomic tool mutations. This survey provides a structured review of academic research (2020--2026) and industrial practices for safeguarding enterprise AI agents. We synthesize existing literature into a four-layer taxonomy spanning the complete data-to-action execution lifecycle: (1) permission-aware data governance and grounding, (2) threat mitigation and prompt-injection defense, (3) governed tool execution and action reliability, and (4) operational observability and lifecycle auditing. We evaluate model-based guardrails, native access-control integration, capability-based information flow control, formal sequence verification, and postcondition-aware idempotency ledgers. Grounded by a practical prototype implementation of an enterprise multi-agent workflow platform, our analysis reveals that reliable safety cannot be achieved through prompt engineering or model alignment alone. Rather, enterprise safeguarding is fundamentally a systems-engineering challenge requiring deterministic, software-enforced boundaries across each stage of agent execution. Finally, we highlight critical research gaps in synchronization, production evaluation fidelity, and unified forensic auditability.
