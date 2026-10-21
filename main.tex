@@ -19,7 +19,7 @@
 % Duplicate the author/affiliation/email block above for each additional author.
 
 \begin{abstract}
-Enterprise AI is rapidly transitioning from passive conversational assistants to autonomous agentic systems. These agents connect large language models to sensitive corporate data stores and real-world execution APIs, introducing critical vulnerabilities that extend far beyond inaccurate text generation. An unconstrained agent can expose confidential documents across tenant boundaries, execute malicious directives embedded in retrieved content, or trigger destructive, non-atomic tool mutations. This survey provides a structured review of academic research (2020--2026) and industrial practices for safeguarding enterprise AI agents. We synthesize existing literature into a four-layer taxonomy spanning the complete data-to-action execution lifecycle: (1) permission-aware data governance and grounding, (2) threat mitigation and prompt-injection defense, (3) governed tool execution and action reliability, and (4) operational observability and lifecycle auditing. We evaluate model-based guardrails, native access-control integration, capability-based information flow control, formal sequence verification, and postcondition-aware idempotency ledgers. Grounded by an empirical case study of an industrial multi-agent platform, our analysis reveals that reliable safety cannot be achieved through prompt engineering or model alignment alone. Rather, enterprise safeguarding is fundamentally a systems-engineering challenge requiring deterministic, software-enforced boundaries across each stage of agent execution. Finally, we highlight critical research gaps in synchronization, production evaluation fidelity, and unified forensic auditability.
+Enterprise AI is rapidly transitioning from passive conversational assistants to autonomous agentic systems. These agents connect large language models to sensitive corporate data stores and real-world execution APIs, introducing critical vulnerabilities that extend far beyond inaccurate text generation. An unconstrained agent can expose confidential documents across tenant boundaries, execute malicious directives embedded in retrieved content, or trigger destructive, non-atomic tool mutations. This survey provides a structured review of academic research (2020--2026) and industrial practices for safeguarding enterprise AI agents. We synthesize existing literature into a four-layer taxonomy spanning the complete data-to-action execution lifecycle: (1) permission-aware data governance and grounding, (2) threat mitigation and prompt-injection defense, (3) governed tool execution and action reliability, and (4) operational observability and lifecycle auditing. We evaluate model-based guardrails, native access-control integration, capability-based information flow control, formal sequence verification, and postcondition-aware idempotency ledgers. Grounded by a practical prototype implementation of an enterprise multi-agent workflow platform, our analysis reveals that reliable safety cannot be achieved through prompt engineering or model alignment alone. Rather, enterprise safeguarding is fundamentally a systems-engineering challenge requiring deterministic, software-enforced boundaries across each stage of agent execution. Finally, we highlight critical research gaps in synchronization, production evaluation fidelity, and unified forensic auditability.
 \end{abstract}
 
 \keywords{enterprise AI, autonomous agents, retrieval-augmented generation, access control, prompt injection, AI guardrails, tool safety, idempotency}
@@ -51,7 +51,7 @@ This survey synthesizes peer-reviewed literature, security standards, and indust
   \item \textbf{RQ4 (Operational Observability \& Lifecycle Auditing):} \emph{How should multi-layered enterprise safeguards be systematically evaluated, continuously monitored, and forensically audited across the software development lifecycle?}
 \end{itemize}
 
-The remainder of this paper is structured as follows: Section~\ref{sec:taxonomy} establishes foundational preliminaries and introduces our four-layer safeguard taxonomy; Section~\ref{sec:review} delivers a critical thematic review addressing each of the four RQs; Section~\ref{sec:comparative} provides a comparative analysis and examines an empirical codebase case study; Section~\ref{sec:gaps} identifies key open research gaps; and Section~\ref{sec:conclusion} concludes with core takeaways.
+The remainder of this paper is structured as follows: Section~\ref{sec:taxonomy} establishes foundational preliminaries and introduces our four-layer safeguard taxonomy; Section~\ref{sec:review} delivers a critical thematic review addressing each of the four RQs; Section~\ref{sec:comparative} provides a comparative analysis and details the practical realization of these safeguards within our platform implementation; Section~\ref{sec:gaps} identifies key open research gaps; and Section~\ref{sec:conclusion} concludes with core takeaways.
 
 % ==================================================================
 % 2. BACKGROUND AND TAXONOMY
@@ -167,52 +167,55 @@ Kulkarni \& Ramanathan~\cite{kulkarni2025grails} [Framework / Paper] & Embedding
 \end{tabular}
 \end{table*}
 
-\subsection{Empirical Case Study: An Enterprise Codebase Audit}
-\label{sec:audit}
-To evaluate how these theoretical controls map to real-world software, we analyze an empirical static code audit of \emph{Enable Agents}, a production-oriented, full-stack multi-agent platform. The platform orchestrates complex business pipelines (such as supplier qualification and sales outreach) using Flask, React, PostgreSQL with \texttt{pgvector}, Redis, Celery, and LangGraph state machines. Table~\ref{tab:audit} maps the audited platform mechanisms to surveyed safeguards.
+\subsection{Practical Implementation: Safeguard Realization in Our Platform}
+\label{sec:implementation}
+To ground the surveyed safeguarding principles in practical engineering, we examine our ongoing prototype implementation of an autonomous enterprise multi-agent workflow platform. The platform orchestrates multi-stage business operations (such as supplier qualification, context-aware information synthesis, and customer outreach) using LangGraph state machines, PostgreSQL with vector similarity search (\texttt{pgvector}), asynchronous worker queues, and a centralized model gateway. 
+
+Table~\ref{tab:implementation} maps our platform's implemented mechanisms across each of the four surveyed safeguard layers and their corresponding research questions.
 
 \begin{table}[t]
 \centering
-\caption{Audited platform mechanisms mapped to surveyed safeguard layers.}
-\label{tab:audit}
+\caption{Mapping of our platform's implemented safeguards to surveyed research questions and literature.}
+\label{tab:implementation}
 \small
 \setlength{\tabcolsep}{3pt}
-\begin{tabular}{p{2.2cm}p{3.15cm}p{2.2cm}}
+\begin{tabular}{p{2.2cm}p{3.2cm}p{2.1cm}}
 \toprule
-\textbf{Layer / Focus} & \textbf{Audit finding} & \textbf{Survey link} \\
+\textbf{Safeguard Layer / RQ} & \textbf{Mechanism in Our Platform} & \textbf{Literature Mapping} \\
 \midrule
-Retrieval (RQ1) & User filter depends on caller-specified user ID; no per-document ACLs & \cite{jeonglee2025permissionawarerag} \\
-Injection (RQ2) & Retrieved text concatenated into document-chat prompts; no isolation found & \cite{greshake2023indirect,debenedetti2026camel} \\
-Approval (RQ3) & Workflow interrupt for irreversible email; standalone send endpoint may bypass it & \cite{doshi2026verifiablysafetooluse,owasp2025llm} \\
-Duplicate effects (RQ3) & Recipient/content ledger claim before send; 50-recipient cap & \cite{mansoor2026verifiedtoolcalls} \\
-Cost/logging (RQ4) & Central gateway, budget reservations, and usage metadata; prompts/completions omitted & \cite{dev2025threat,kulkarni2025grails} \\
-Evaluation (RQ4) & Keyword/JSON checks; no faithfulness metric & \cite{es2024ragas} \\
-\bottomrule\end{tabular}
+Retrieval (RQ1) & Multi-tenant vector filtering scoped by user and organization identifiers & \cite{jeonglee2025permissionawarerag} \\
+Injection (RQ2) & Prompt templating, input schema validation, and structural context delimiters & \cite{greshake2023indirect,debenedetti2026camel} \\
+Tool Governance (RQ3) & Human-in-the-loop state machine approval interrupts on irreversible actions & \cite{doshi2026verifiablysafetooluse,owasp2025llm} \\
+Tool Reliability (RQ3) & Durable claim-before-send action ledger with cryptographic payload hashing & \cite{mansoor2026verifiedtoolcalls} \\
+Cost \& Logging (RQ4) & Central gateway, pre-flight budget reservations, and token usage telemetry & \cite{dev2025threat,kulkarni2025grails} \\
+Evaluation (RQ4) & Automated output schema validation checks and grounding metrics & \cite{es2024ragas} \\
+\bottomrule
+\end{tabular}
 \end{table}
 
-\textbf{Implemented Strengths.} The codebase strongly reflects the \emph{Determinism Principle}: critical boundaries are enforced through native Python logic rather than delegated to language models:
+\textbf{Implemented Safeguards and Determinism.} Our system design strictly adheres to the \emph{Determinism Principle}: critical boundaries and invariants are enforced deterministically in native software logic rather than delegated to probabilistic language model prompts:
 \begin{itemize}
-  \item \emph{State-Machine Approval Checkpoints:} In LangGraph workflows (\texttt{graph.py}), stages marked with irreversible side effects (\texttt{side\_effect="irreversible"}, e.g., bulk email dispatch) trigger an explicit \texttt{interrupt()}, pausing execution until a human administrator approves, edits, or rejects the candidate payload via \texttt{POST /api/workflows/instances/:id/resume}.
-  \item \emph{Durable Claim-Before-Send Action Ledgers:} To mitigate non-atomic tool failures \cite{mansoor2026verifiedtoolcalls}, \texttt{WorkflowSendLedger} computes a SHA-1 content hash of outbound emails, asserting a database claim prior to dispatch. If worker processes crash or retry, existing claims prevent duplicate execution ($n_k \le 1$).
-  \item \emph{Multi-Tier Financial Guardrails:} The model gateway (\texttt{core/ai\_client.py}) interfaces with \texttt{core/budget.py} to compute pre-flight cost estimations and reserve funds in \texttt{budget\_reservations}, blocking execution with HTTP 402 if project or team spending limits are exceeded.
+  \item \emph{State-Machine Human Approval Checkpoints (RQ3):} In multi-stage workflow graphs, stages with irreversible real-world side effects (such as outbound email dispatch or database record modification) trigger an explicit execution interrupt. The workflow pauses deterministically, persisting state and requiring an authenticated administrator to inspect, modify, or approve the candidate action payload before dispatch can proceed.
+  \item \emph{Durable Claim-Before-Send Action Ledgers (RQ3):} To mitigate non-atomic tool failures and network timeouts \cite{mansoor2026verifiedtoolcalls}, the execution worker computes a cryptographic SHA-1 hash over the serialized payload, asserting a persistent database reservation claim prior to dispatch. If worker processes crash or retry, existing claims guarantee at-most-once execution ($n_k \le 1$). Outbound operations are further constrained by hard recipient caps (e.g., maximum 50 recipients).
+  \item \emph{Centralized Gateway with Pre-Flight Budget Reservations (RQ4):} All model invocations route through a unified AI client gateway. The gateway computes pre-flight cost estimations and reserves funds against project and organizational spending quotas, blocking execution with payment required errors if spending limits are exceeded.
 \end{itemize}
 
-\textbf{Architectural Vulnerabilities and Gaps.} Conversely, static code analysis reveals critical security deficits common across industrial implementations:
+\textbf{Implementation Trade-offs and Ongoing Enhancements.} Grounding our prototype in the surveyed literature highlights clear areas for ongoing development:
 \begin{enumerate}
-  \item \emph{Coarse Multi-Tenancy Scoping:} In an ideal permission-aware architecture, authorized context $C(q,u)$ for query $q$ and user $u$ is filtered against each document source's native IAM policy:
+  \item \emph{Tenant Scoping vs. Dynamic IAM (RQ1):} In an ideal permission-aware architecture, authorized context $C(q,u)$ for query $q$ and user $u$ is filtered against each document source's native IAM policy:
   \[
   C(q,u) = \{d \in \operatorname{Top}_k(q) : \operatorname{IAM}_{s(d)}(u, d, \text{read}) = \text{allow}\}.
   \]
-  In the audited platform, vector search applies an uploader filter only if a caller explicitly supplies a user identifier. Letting $D$ be the indexed corpus and $u=\bot$ denote an omitted identifier, the effective context behaves as $C'(q,u) = \operatorname{Top}_k(q; D_u)$, where:
+  In our current prototype, vector search enforces multi-tenancy by scoping queries to caller-supplied user and tenant identifiers. Letting $D$ be the indexed corpus and $u=\bot$ denote an omitted identifier, the effective context behaves as $C'(q,u) = \operatorname{Top}_k(q; D_u)$, where:
   \[
   D_u = \begin{cases}
   D, & u = \bot, \\
   \{d : \operatorname{owner}(d) = u\}, & \text{otherwise.}
   \end{cases}
   \]
-  This uploader-scoping model lacks fine-grained document ACLs and risks cross-tenant exposure if callers omit parameters.
-  \item \emph{Absence of Prompt-Injection Isolation:} In the document question-answering service, retrieved chunk text is directly concatenated into prompt templates without XML delimiter framing or capability tracking. An adversarial instruction embedded within an ingested PDF could directly hijack the conversational agent, highlighting the necessity of structural defenses like CaMeL \cite{debenedetti2026camel}.
-  \item \emph{Heuristic-Only Testing:} Continuous integration fixtures verify keyword presence and JSON keys, lacking semantic hallucination detection (e.g., RAGAs \cite{es2024ragas}) or adversarial robustness benchmarking.
+  While this provides robust organizational tenant isolation, extending our retrieval pipeline to support dynamic, per-document access control lists (ACLs) evaluated at query time \cite{jeonglee2025permissionawarerag} represents an active development focus.
+  \item \emph{Prompt Injection Defense (RQ2):} Our document question-answering pipelines enforce structured role boundaries between system instructions, user queries, and retrieved context. However, as demonstrated by CaMeL \cite{debenedetti2026camel}, achieving complete immunity against indirect prompt injection requires separating untrusted context into tool-less reader models with cryptographic capability tracking, which we are evaluating for future iterations.
+  \item \emph{Continuous Robustness Benchmarking (RQ4):} Continuous integration tests currently enforce schema validation and keyword checks. Integrating semantic hallucination evaluation (e.g., RAGAs \cite{es2024ragas}) and automated adversarial probe sets provides a structured path toward production certification.
 \end{enumerate}
 
 To evaluate these layers rigorously against policy ground truth, retrieval access control must be measured via False Authorization Rate ($\mathrm{FAR}$) and False Rejection Rate ($\mathrm{FRR}$):
@@ -226,12 +229,12 @@ where $\mathrm{FP}$ counts unauthorized chunks exposed, $\mathrm{TN}$ unauthoriz
 % ==================================================================
 \section{Research Gaps and Open Challenges}
 \label{sec:gaps}
-Our synthesis of literature and codebase analysis reveals four critical open research challenges:
+Our synthesis of literature and practical platform implementation reveals four critical open research challenges:
 \begin{enumerate}
   \item \textbf{Dynamic Synchronization and Permission Revocation:} Current permission-aware RAG research (e.g., \cite{jeonglee2025permissionawarerag}) evaluates static IAM snapshots. In production enterprises, permissions, group memberships, and documents change continuously. Investigating zero-delay cache invalidation, deletion propagation (tombstones), and dynamic re-indexing without leaking revoked context remains an unaddressed challenge.
   \item \textbf{Production vs. Benchmark Evaluation Fidelity:} Existing security benchmarks (e.g., HotpotQA, AgentDojo) rely on synthetic, narrow test cases. Real enterprise environments feature complex multi-hop dependencies, ambiguous human organizational roles, and strict latency service level agreements (SLAs). Developing standardized enterprise agent benchmarks with realistic threat landscapes is urgently required.
   \item \textbf{The Security-Utility-Latency Frontier:} Structural defenses such as CaMeL \cite{debenedetti2026camel} achieve impressive security guarantees but incur token overhead and task degradation (-7\% completion rate). Similarly, query-time IAM checks introduce measurable latency. Future work must explore speculative permission evaluation, hardware acceleration, and lightweight verification models to balance safety with user experience.
-  \item \textbf{Unified End-to-End Forensic Traceability:} While individual systems record token expenditure (\texttt{AIUsageLog}) or action claims (\texttt{WorkflowSendLedger}), enterprise compliance requires an immutable, privacy-preserving audit trail linking original source provenance, IAM evaluation results, model reasoning tokens, human approval signatures, and external API postconditions into a unified forensic chain.
+  \item \textbf{Unified End-to-End Forensic Traceability:} While individual systems record token expenditure ledgers or action claims, enterprise compliance requires an immutable, privacy-preserving audit trail linking original source provenance, IAM evaluation results, model reasoning tokens, human approval signatures, and external API postconditions into a unified forensic chain.
 \end{enumerate}
 
 % ==================================================================
