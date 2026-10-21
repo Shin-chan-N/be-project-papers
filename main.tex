@@ -31,7 +31,7 @@ Enterprise AI is rapidly transitioning from passive conversational assistants to
 % 1. INTRODUCTION
 % ==================================================================
 \section{Introduction}
-Modern enterprises are increasingly deploying autonomous AI agents to orchestrate multi-stage business workflows \cite{yao2023react}. Unlike traditional, passive question-answering systems, enterprise agents actively ingest corporate documentation from relational and vector stores, synthesize contextual plans, and execute consequential business actions across internal and external APIs (e.g., dispatching bulk emails, modifying customer records, or invoking financial transactions). In this agentic paradigm, an error is no longer confined to inaccurate text generation; a single failure can trigger unauthorized data disclosure, severe operational disruption, or irreversible side effects.
+Modern enterprises are increasingly deploying autonomous AI agents to orchestrate multi-stage business workflows \cite{yao2023react,wang2024agents}. Unlike traditional, passive question-answering systems, enterprise agents actively ingest corporate documentation from relational and vector stores, synthesize contextual plans, and execute consequential business actions across internal and external APIs (e.g., dispatching bulk emails, modifying customer records, or invoking financial transactions). In this agentic paradigm, an error is no longer confined to inaccurate text generation; a single failure can trigger unauthorized data disclosure, severe operational disruption, or irreversible side effects.
 
 Securing these systems introduces a multidimensional challenge across the data-to-action pipeline:
 \begin{enumerate}
@@ -64,7 +64,7 @@ An enterprise agent system operates over an iterative data-to-action execution l
 \[
 \text{Data Ingestion} \longrightarrow \text{Retrieval \& Grounding} \longrightarrow \text{Model Reasoning} \longrightarrow \text{Tool Execution} \longrightarrow \text{State Mutation}
 \]
-Knowledge retrieval is commonly implemented via Retrieval-Augmented Generation (RAG), which projects corporate documents into dense vector spaces and retrieves candidate chunks using similarity measures (e.g., cosine distance). Agentic reasoning follows frameworks such as ReAct (Reasoning and Acting) \cite{yao2023react}, where the language model interleaves chain-of-thought planning with structured tool calls. Because tools interact directly with production databases and external communication services, the execution environment must enforce strict operational constraints.
+Knowledge retrieval is commonly implemented via Retrieval-Augmented Generation (RAG) \cite{gao2023ragsurvey}, which projects corporate documents into dense vector spaces and retrieves candidate chunks using similarity measures (e.g., cosine distance). Agentic reasoning follows frameworks such as ReAct (Reasoning and Acting) \cite{yao2023react}, where the language model interleaves chain-of-thought planning with structured tool calls. Because tools interact directly with production databases and external communication services, the execution environment must enforce strict operational constraints.
 
 \subsection{The Four-Layer Enterprise Safeguard Taxonomy}
 To organize the diverse safeguards proposed across the literature, we classify them into a four-layer architectural taxonomy directly mapped to our research questions:
@@ -119,33 +119,50 @@ To operationalize these safeguards throughout enterprise engineering, Kulkarni a
 \label{sec:comparative}
 
 \subsection{Comparison with Existing Literature and Related Surveys}
-A key limitation of existing research on LLM safety is fragmentation: existing surveys and research papers typically isolate a single layer—such as conversational output safety, vector retrieval filtering, or prompt-injection benchmarks—without addressing the interconnected failure modes of multi-stage autonomous agents. 
+A key limitation of existing research on LLM safety is fragmentation: prior surveys and primary research papers typically isolate a single layer—such as conversational output guardrails, vector retrieval algorithms, or isolated injection benchmarks—without addressing the interconnected failure modes of multi-stage autonomous agents. 
 
-Table~\ref{tab:survey_comparison} compares this survey with representative existing surveys and related works across critical architectural dimensions: scope, taxonomy granularity, challenge coverage, tool execution governance, standards alignment, and empirical codebase validation. As highlighted in the comparative matrix, existing broad surveys (e.g., Dong et al.~\cite{dong2025safeguardingsurvey}) focus primarily on conversational text safety and lack operational tool governance or multi-tenant IAM retrieval. Conversely, specialized studies (such as Jeong and Lee~\cite{jeonglee2025permissionawarerag} for IAM-RAG or Debenedetti et al.~\cite{debenedetti2026camel} for CaMeL) offer deep mechanisms for individual boundaries but do not cover the complete data-to-action pipeline. This survey bridges these isolated silos by delivering a unified, four-layer systems taxonomy (RQ1--RQ4) grounded in both foundational security standards and real-world codebase validation.
+To clarify the scope and contributions of existing literature, Table~\ref{tab:survey_comparison} compares this survey against prior surveys, meta-reviews, and representative primary research papers across five key architectural dimensions:
+\begin{enumerate}
+  \item \textbf{Primary Focus:} The principal problem domain addressed by the work (e.g., conversational text safety, RAG retrieval mechanics, autonomous agent design, or isolated tool safety).
+  \item \textbf{Data Access \& IAM (RQ1):} Whether the work enforces multi-tenant identity and access management (IAM) to prevent unauthorized document exposure during retrieval.
+  \item \textbf{Prompt Injection Defense (RQ2):} Whether the approach provides structural or classifier-based defenses against indirect prompt injection embedded in external data.
+  \item \textbf{Tool \& Action Safety (RQ3):} Whether the system enforces runtime constraints, idempotency ledgers, or human approval checkpoints before executing real-world external mutations.
+  \item \textbf{Standards Alignment (RQ4):} Whether the work formally aligns with recognized enterprise security frameworks, such as the OWASP Top 10 for LLMs \cite{owasp2025llm}, NIST AI RMF, or MITRE ATLAS \cite{dev2025threat}.
+\end{enumerate}
+
+As shown in Table~\ref{tab:survey_comparison}, existing broad surveys on LLM safeguards (e.g., Dong et al.~\cite{dong2025safeguardingsurvey}) and RAG (Gao et al.~\cite{gao2023ragsurvey}) focus primarily on conversational text safety and semantic retrieval, lacking operational tool governance or multi-tenant IAM enforcement. General surveys on autonomous agents (e.g., Wang et al.~\cite{wang2024agents}) analyze planning and tool selection but omit security boundaries, IAM controls, and prompt-injection defenses. Conversely, specialized research papers (such as Jeong and Lee~\cite{jeonglee2025permissionawarerag} for IAM-RAG, Debenedetti et al.~\cite{debenedetti2026camel} for CaMeL, or Mansoor et al.~\cite{mansoor2026verifiedtoolcalls} for tool idempotency) offer deep mechanisms for individual boundaries but do not cover the complete data-to-action pipeline. This survey bridges these isolated silos by delivering a unified, four-layer systems taxonomy (RQ1--RQ4) grounded in both foundational security standards and real-world system architecture.
 
 \begin{table*}[t]
 \centering
-\caption{Comparison of our survey with existing surveys and representative related works on AI safeguarding and agent governance.}
+\caption{Comparison of our survey with existing surveys, meta-reviews, and representative related works on AI safeguarding and agent governance.}
 \label{tab:survey_comparison}
 \small
 \setlength{\tabcolsep}{4pt}
-\begin{tabular}{p{2.3cm}p{2.3cm}p{2.2cm}p{2.8cm}p{2.2cm}p{2.0cm}p{2.4cm}}
+\begin{tabular}{p{3.2cm}p{3.3cm}p{2.6cm}p{2.7cm}p{2.9cm}p{2.6cm}}
 \toprule
-\textbf{Work / Survey} & \textbf{Scope} & \textbf{Taxonomy Granularity} & \textbf{Challenge Coverage} & \textbf{Tool / Action Governance} & \textbf{Standards Alignment} & \textbf{Empirical Codebase Analysis} \\
+\textbf{Work \& Reference} & \textbf{Primary Focus} & \textbf{Data Access \& IAM (RQ1)} & \textbf{Prompt Injection Defense (RQ2)} & \textbf{Tool \& Action Safety (RQ3)} & \textbf{Standards Alignment (RQ4)} \\
 \midrule
-Dong et al.~\cite{dong2025safeguardingsurvey} & Broad LLM safeguards & High (Input, output, model guardrails) & Safety, toxicity, bias, jailbreaks & No (conversational text generation) & General AI safety principles & No (literature review only) \\
-\addlinespace
-Dev et al.~\cite{dev2025threat} & AI threat modeling meta-analysis & High (Threat question library) & Adversarial attacks, privacy, data poisoning & Limited (threat discovery only) & High (MITRE ATLAS, OWASP, NIST) & Partial (expert review panel) \\
-\addlinespace
-Kulkarni \& Ramanathan~\cite{kulkarni2025grails} & Ethical safeguards in software SDLC & Medium (Architectural design patterns) & Privacy, fairness, regulatory compliance & Limited (software application services) & High (Responsible AI guidelines) & Qualitative industrial examples \\
-\addlinespace
-Jeong \& Lee~\cite{jeonglee2025permissionawarerag} & Permission-aware cloud RAG & Focused (IAM-RAG pipeline) & Cross-tenant data leakage, access control & No (retrieval-only focus) & High (AWS, GCP, Keycloak IAM) & Yes (HotpotQA prototype evaluation) \\
-\addlinespace
-Debenedetti et al.~\cite{debenedetti2026camel} & Indirect prompt injection defense & Focused (Data-flow and capability graphs) & Prompt injection, data exfiltration & Yes (capability checks before tool calls) & Threat-model specific (AgentDojo) & Yes (AgentDojo benchmark) \\
-\addlinespace
-Mansoor et al.~\cite{mansoor2026verifiedtoolcalls} / Doshi et al.~\cite{doshi2026verifiablysafetooluse} & Tool safety and action reliability & Focused (State invariants \& postconditions) & Excessive agency, duplicate executions & High (tool sequences, idempotency keys) & STPA hazard analysis & Yes (simulated workflows / Alloy models) \\
+\multicolumn{6}{l}{\textit{\textbf{Existing Surveys and Meta-Reviews}}} \\
 \midrule
-\textbf{This survey} & \textbf{End-to-end enterprise agent safeguarding} & \textbf{High (4-layer data-to-action taxonomy: RQ1--RQ4)} & \textbf{Access control, prompt injection, tool duplication, cost runaway} & \textbf{Yes (State machines, human checkpoints, at-most-once ledgers)} & \textbf{High (OWASP Top 10, NIST AI RMF, MITRE ATLAS)} & \textbf{Yes (Comprehensive static audit of Enable Agents platform)} \\
+Dong et al.~\cite{dong2025safeguardingsurvey} [Survey] & LLM guardrails, output safety, and alignment & No (conversational context only) & Yes (input/output guardrail classifiers) & No (unconstrained text generation) & Partial (general AI safety principles) \\
+\addlinespace
+Gao et al.~\cite{gao2023ragsurvey} [Survey] & Retrieval-augmented generation paradigms & No (semantic similarity without IAM) & No (corpus assumed trusted) & No (retrieval-to-generation only) & No (algorithmic benchmark focus) \\
+\addlinespace
+Wang et al.~\cite{wang2024agents} [Survey] & Autonomous agent architectures \& planning & No (unrestricted agent memory/context) & No (unprotected planning loops) & Partial (action selection; no safety checks) & No (agent capability benchmarks) \\
+\addlinespace
+Dev et al.~\cite{dev2025threat} [Meta-Review] & AI threat modeling and risk taxonomy & Partial (identifies data privacy threats) & Partial (identifies injection attack vectors) & Limited (threat cataloging; no runtime guards) & High (MITRE ATLAS, OWASP, NIST AI RMF) \\
+\midrule
+\multicolumn{6}{l}{\textit{\textbf{Representative Primary Research Papers}}} \\
+\midrule
+Jeong \& Lee~\cite{jeonglee2025permissionawarerag} [Research Paper] & Permission-aware RAG access filtering & Yes (Native AWS/GCP/Keycloak IAM filtering) & No (focuses strictly on authorization) & No (retrieval pipeline only) & Partial (enterprise cloud IAM integration) \\
+\addlinespace
+Debenedetti et al.~\cite{debenedetti2026camel} [Research Paper] & Indirect prompt injection defense & No (assumes pre-filtered context) & Yes (CaMeL data-flow privilege separation) & Partial (capability checks before tool calls) & Partial (AgentDojo threat benchmark) \\
+\addlinespace
+Mansoor et al.~\cite{mansoor2026verifiedtoolcalls} / Doshi et al.~\cite{doshi2026verifiablysafetooluse} [Research Paper] & Tool safety, formal invariants, and idempotency & No (tool execution layer only) & No (assumes uncorrupted tool inputs) & Yes (Postcondition verifiers, ledgers, Alloy models) & Partial (STPA hazard analysis) \\
+\addlinespace
+Kulkarni \& Ramanathan~\cite{kulkarni2025grails} [Framework / Paper] & Embedding ethical safeguards in software SDLC & Partial (data privacy design patterns) & No (SDLC process focus) & Limited (service-level validation patterns) & High (Responsible AI guidelines) \\
+\midrule
+\textbf{This survey} [Survey] & \textbf{End-to-end enterprise agent safeguarding} & \textbf{Yes (Dynamic IAM filtering \& multi-tenancy)} & \textbf{Yes (Dual-boundary structural isolation)} & \textbf{Yes (State machines, human approval, ledgers)} & \textbf{High (OWASP Top 10, NIST AI RMF, MITRE ATLAS)} \\
 \bottomrule
 \end{tabular}
 \end{table*}
