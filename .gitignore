@@ -1,0 +1,56 @@
+# ==============================================================================
+# Git Ignore Rules for Enterprise AI Safeguarding Paper Repository
+# ==============================================================================
+
+# Company Intellectual Property & Implementation Codebase
+code/
+
+# LaTeX Auxiliary and Build Artifacts
+*.aux
+*.bbl
+*.blg
+*.fls
+*.fdb_latexmk
+*.log
+*.out
+*.synctex.gz
+*.pdfsync
+*.toc
+*.run.xml
+*.bcf
+*.nav
+*.snm
+*.vrb
+*.dvi
+*.lot
+*.lof
+
+# Python Bytecode and Caches
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+.pytest_cache/
+
+# OS and Editor Specific Artifacts
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Environment & Credentials
+.env
+.env.*
+*.pem
+*.key
+
+# Temporary files & caches
+*.tmp
+*.bak
